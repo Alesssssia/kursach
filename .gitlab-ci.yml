@@ -1,0 +1,46 @@
+
+build_prod:
+  stage: build
+  script:
+    - docker build -t $PROD_IMAGE .
+  only:
+    - main
+
+push_dev:
+  stage: push
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker push $DEV_IMAGE
+  only:
+    - dev
+
+push_prod:
+  stage: push
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker push $PROD_IMAGE
+  only:
+    - main
+
+deploy_dev:
+  stage: deploy
+  script:
+    - docker stop dev-app || true
+    - docker rm dev-app || true
+    - docker run -d --name dev-app -p 8080:80 $DEV_IMAGE
+  only:
+    - dev
+  environment:
+    name: dev
+
+deploy_prod:
+  stage: deploy
+  script:
+    - docker stop prod-app || true
+    - docker rm prod-app || true
+    - docker run -d --name prod-app -p 80:80 $PROD_IMAGE
+  only:
+    - main
+  when: manual
+  environment:
+    name: prod

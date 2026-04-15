@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>До лета 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0b3b3f 0%, #1a7f6e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 40px;
+            padding: 30px;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .countdown {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .days-left {
+            font-size: 5rem;
+            font-weight: bold;
+            background: rgba(255,255,255,0.2);
+            display: inline-block;
+            padding: 20px 40px;
+            border-radius: 60px;
+            margin: 20px 0;
+            backdrop-filter: blur(5px);
+        }
+
+        .timer {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .timer-block {
+            background: rgba(0,0,0,0.3);
+            padding: 15px 25px;
+            border-radius: 20px;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .timer-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            display: block;
+        }
+
+        .timer-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .calendar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .month {
+            background: rgba(255,255,255,0.15);
+            border-radius: 30px;
+            padding: 20px;
+            flex: 1;
+            min-width: 250px;
+            backdrop-filter: blur(5px);
+        }
+
+        .month h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #ddd;
+        }
+
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .day {
+            text-align: center;
+            padding: 10px 5px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+        }
+
+        .day:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
+        .today {
+            background: #ff7e5e;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 0 0 2px white;
+        }
+
+        .other-month {
+            opacity: 0.4;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🌞 До лета 2026 осталось ...🌞</h1>
+
+    <div class="countdown">
+        <div class="days-left" id="daysLeft">-- дней !</div>
+        <div class="timer">
+            <div class="timer-block"><span class="timer-number" id="days">0</span><span class="timer-label">Дней</span></div>
+            <div class="timer-block"><span class="timer-number" id="hours">0</span><span class="timer-label">Часов</span></div>
+            <div class="timer-block"><span class="timer-number" id="minutes">0</span><span class="timer-label">Минут</span></div>
+            <div class="timer-block"><span class="timer-number" id="seconds">0</span><span class="timer-label">Секунд</span></div>
+        </div>
+    </div>
+
+    <div class="calendar" id="calendar"></div>
+    <footer>🌻 Отсчёт до 1 июня 2026 года</footer>
+</div>
+
+<script>
+    // Дата лета: 1 июня 2026 года, 00:00:00
+    const summerDate = new Date(2026, 5, 1, 0, 0, 0);
+
+    function updateCountdown() {
+        const now = new Date();
+        const diff = summerDate - now;
+
+        if (diff <= 0) {
+            document.getElementById('daysLeft').innerHTML = 'Лето наступило! 🎉';
+            document.getElementById('days').innerHTML = '0';
+            document.getElementById('hours').innerHTML = '0';
+            document.getElementById('minutes').innerHTML = '0';
+            document.getElementById('seconds').innerHTML = '0';
+            return;
+        }
+
+        const totalDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (86400000)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (3600000)) / (1000 * 60));
+        const seconds = Math.floor((diff % (60000)) / 1000);
+
+        document.getElementById('daysLeft').innerHTML = `🎉 ${totalDays} дней !`;
+        document.getElementById('days').innerHTML = totalDays;
+        document.getElementById('hours').innerHTML = hours;
+        document.getElementById('minutes').innerHTML = minutes;
+        document.getElementById('seconds').innerHTML = seconds;
+    }
+
+    function generateCalendar() {
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth();
+
+        // Месяца для отображения: апрель (3), май (4), июнь (5)
+        const monthsToShow = [
+            { year: currentYear, month: 3, name: 'Апрель' },
+            { year: currentYear, month: 4, name: 'Май' },
+            { year: currentYear, month: 5, name: 'Июнь' }
+        ];
+
+        const calendarDiv = document.getElementById('calendar');
+        calendarDiv.innerHTML = '';
+
+        for (let m of monthsToShow) {
+            const firstDayOfMonth = new Date(m.year, m.month, 1);
+            const startWeekday = firstDayOfMonth.getDay(); // 0 - вс, 1 - пн и т.д.
+            // Корректируем, чтобы неделя начиналась с понедельника
+            let offset = (startWeekday === 0) ? 6 : startWeekday - 1;
+
+            const daysInMonth = new Date(m.year, m.month + 1, 0).getDate();
+
+            const monthDiv = document.createElement('div');
+            monthDiv.className = 'month';
+
+            const title = document.createElement('h3');
+            title.innerText = m.name;
+            monthDiv.appendChild(title);
+
+            const weekdaysDiv = document.createElement('div');
+            weekdaysDiv.className = 'weekdays';
+            ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].forEach(day => {
+                const d = document.createElement('div');
+                d.innerText = day;
+                weekdaysDiv.appendChild(d);
+            });
+            monthDiv.appendChild(weekdaysDiv);
+
+            const daysGrid = document.createElement('div');
+            daysGrid.className = 'days-grid';
+
+            // Пустые ячейки до первого дня месяца
+            for (let i = 0; i < offset; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'day other-month';
+                empty.innerText = '';
+                daysGrid.appendChild(empty);
+            }
+
+            // Дни месяца
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'day';
+                dayCell.innerText = d;
+
+                // Проверяем, сегодня ли этот день
+                if (m.year === today.getFullYear() && m.month === today.getMonth() && d === today.getDate()) {
+                    dayCell.classList.add('today');
+                }
+                daysGrid.appendChild(dayCell);
+            }
+
+            monthDiv.appendChild(daysGrid);
+            calendarDiv.appendChild(monthDiv);
+        }
+    }
+
+    updateCountdown();
+    generateCalendar();
+    setInterval(updateCountdown, 1000);
+</script>
+</body>
+</html>
