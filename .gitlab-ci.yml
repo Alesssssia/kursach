@@ -1,3 +1,19 @@
+stages:
+  - build
+  - test
+  - push
+  - deploy
+
+variables:
+  DEV_IMAGE: $CI_REGISTRY_IMAGE/dev:$CI_COMMIT_SHORT_SHA
+  PROD_IMAGE: $CI_REGISTRY_IMAGE/prod:$CI_COMMIT_SHORT_SHA
+
+build_dev:
+  stage: build
+  script:
+    - docker build -t $DEV_IMAGE .
+  only:
+    - dev
 
 build_prod:
   stage: build
