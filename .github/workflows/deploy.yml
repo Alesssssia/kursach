@@ -1,0 +1,27 @@
+name: Deploy Summer App
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t summer-app:latest .
+
+      - name: Deploy to local (dev)
+        run: |
+          docker stop dev-app || true
+          docker rm dev-app || true
+          docker run -d --name dev-app -p 8080:80 summer-app:latest
