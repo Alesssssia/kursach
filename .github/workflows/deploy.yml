@@ -1,14 +1,13 @@
-name: Deploy Summer App
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ dev, main ]
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-
+  build:
+    runs-on: self-hosted
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,10 +17,81 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t summer-app:latest .
+          docker build -t summer-app:${{ github.sha }} .
+          docker tag summer-app:${{ github.sha }} summer-app:latest
 
-      - name: Deploy to local (dev)
+      - name: Save image as artifact
+        run: docker save summer-app:${{ github.sha }} -o summer-app.tar
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: summer-app-image
+          path: summer-app.tar
+
+  test:
+    runs-on: self-hosted
+    needs: build
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: summer-app-image
+
+      - name: Load image
+        run: docker load -i summer-app.tar
+
+      - name: Run container for testing
+        run: |
+          docker run -d --name test-app -p 8090:80 summer-app:latest
+
+      - name: Wait for container to be ready
+        run: sleep 3
+
+      - name: Test HTTP response
+        run: |
+          curl --fail http://localhost:8090 || exit 1
+
+      - name: Stop and remove test container
+        run: |
+          docker stop test-app || true
+          docker rm test-app || true
+
+  deploy-dev:
+    runs-on: self-hosted
+    needs: test
+    if: github.ref == 'refs/heads/dev'
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: summer-app-image
+
+      - name: Load image
+        run: docker load -i summer-app.tar
+
+      - name: Deploy to DEV
         run: |
           docker stop dev-app || true
           docker rm dev-app || true
           docker run -d --name dev-app -p 8080:80 summer-app:latest
+
+  deploy-prod:
+    runs-on: self-hosted
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: summer-app-image
+
+      - name: Load image
+        run: docker load -i summer-app.tar
+
+      - name: Deploy to PROD
+        run: |
+          docker stop prod-app || true
+          docker rm prod-app || true
+          docker run -d --name prod-app -p 80:80 summer-app:latest
